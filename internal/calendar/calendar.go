@@ -14,6 +14,15 @@ type DateOnly struct {
 	time.Time
 }
 
+type CalendarDay struct {
+	ID       int      `json:"id"`
+	UserID   int      `json:"user_id" binding:"required"`
+	DayDate  DateOnly `json:"day_date" binding:"required"`
+	Title    string   `json:"title" binding:"required"`
+	ImageURL string   `json:"image_url" binding:"required,url"`
+	Content  string   `json:"content" binding:"required"`
+}
+
 func (d *DateOnly) UnmarshalJSON(b []byte) error {
 	s := string(b)
 	t, err := time.Parse(`"2006-01-02"`, s)
@@ -42,15 +51,6 @@ func (d *DateOnly) Scan(value interface{}) error {
 
 	*d = DateOnly{Time: t}
 	return nil
-}
-
-type CalendarDay struct {
-	ID       int       `json:"id"`
-	UserID   int       `json:"user_id"`
-	DayDate  DateOnly  `json:"day_date"`
-	Title    string    `json:"title"`
-	ImageURL string    `json:"image_url"`
-	Content  string    `json:"content"`
 }
 
 func CreateDay(c *gin.Context) {
@@ -88,7 +88,8 @@ func GetNextDay(c *gin.Context) {
 
 	log.Printf("Извлеченный userID: %d", userIDInt)
 
-	err := db.DB.QueryRow("SELECT id, user_id, day_date, title, image_url, content FROM calendar_days WHERE user_id = ? AND day_date = CURDATE() ORDER BY day_date ASC LIMIT 1", userIDInt).Scan(&day.ID, &day.UserID, &day.DayDate, &day.Title, &day.ImageURL, &day.Content)
+	err := db.DB.QueryRow("SELECT id, user_id, day_date, title, image_url, content FROM calendar_days WHERE user_id = ? AND day_date = CURDATE() ORDER BY day_date ASC LIMIT 1",
+		userIDInt).Scan(&day.ID, &day.UserID, &day.DayDate, &day.Title, &day.ImageURL, &day.Content)
 	if err != nil {
 		log.Printf("Ошибка при получении дня: %v", err)
 		c.JSON(http.StatusNotFound, gin.H{"error": "Нет доступных дней"})

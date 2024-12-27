@@ -2,16 +2,16 @@ package db
 
 import (
 	"database/sql"
-	"log"
-
 	_ "github.com/go-sql-driver/mysql"
 	mysqlCfg "github.com/go-sql-driver/mysql"
+	"log"
 )
 
 var DB *sql.DB
 
 func InitDB() {
 	var err error
+	//DB, err = sql.Open("mysql", "root:root@tcp(mysql:3306)/advent_calendar")
 	DB, err = sql.Open("mysql", "root:root@tcp(localhost:3306)/advent_calendar")
 	if err != nil {
 		log.Fatal(err)
